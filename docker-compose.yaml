@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo
+    container_name: mongo
+
+  backend:
+    # image: network-test
+    build: .
+    container_name: app
+    depends_on: 
+      - mongodb
+    ports:
+      - "3000:3000"
