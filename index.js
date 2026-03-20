@@ -1,18 +1,24 @@
 const express = require('express');
-const mongoose = require('mongoose');
-
+const cluster = require('cluster');
+const os = require('os');
 const app = express();
 
-mongoose.connect('mongodb://mongo:27017/myDb')
-.then(()=>{
-  console.log('.....Mongo db connected successfully.......');
-})
-.catch(()=>{
-  console.log('......Error Occured.......');
-})
+const CPU_CORE_COUNT = os.cpus().length;
 
-app.get('/', (req, res) => {
-  res.send('Hello Aman Madhukar');
-});
+if(cluster.isPrimary) {
+  for(let i=0;i<CPU_CORE_COUNT;i++){
+    cluster.fork();
+  }
+}
+else{
 
-app.listen(3000);
+  app.get('/', (req, res) => {
+    res.send('Hello Aman Madhukar');
+  });
+
+  app.get('/pid', (req, res) => {
+    res.send('Req handled by worker: ',process.pid,' CPU Core Count: ',CPU_CORE_COUNT);
+  });
+  
+  app.listen(3000);
+}
