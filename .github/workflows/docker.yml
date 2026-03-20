@@ -34,7 +34,7 @@ jobs:
       # 5. Push to VM
       - name: Restart VM with new image
         run: |
-          echo "${{ secrets.VM_PRIVATE_KEY }}" > private_key && chmod 400 private_key
+          echo "${{ secrets.VM_PRIVATE_KEY }}" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.VM_USERNAME }}@${{ secrets.VM_IP_ADDRESS }}
           docker pull ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
           docker kill $(docker ps -q)
