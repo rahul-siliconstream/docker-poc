@@ -30,3 +30,12 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
+
+      # 5. Push to VM
+      - name: Restart VM with new image
+        run: |
+          echo "${{ secrets.VM_PRIVATE_KEY }}" > private_key && chmod 400 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.VM_USERNAME }}@${{ VM_IP_ADDRESS }}
+          docker pull ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
+          docker kill $(docker ps -q)
+          docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
