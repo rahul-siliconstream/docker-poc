@@ -37,6 +37,7 @@ jobs:
           echo "${{ secrets.VM_PRIVATE_KEY }}" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${{ secrets.VM_USERNAME }}@${{ secrets.VM_IP_ADDRESS }} '
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
-            sudo docker stop aman-backend
+            sudo docker stop aman-backend || true
+            sudo docker rm aman-backend || true
             sudo docker run --name aman-backend -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/my-app:${{ github.sha }}
             '
