@@ -19,6 +19,12 @@ else{
   app.get('/pid', (req, res) => {
     res.send(`Req handled by worker: ${process.pid}, CPU Core Count: ${CPU_CORE_COUNT}`);
   });
+
+  app.get('/heavy-task', (req, res) => {
+    let sum=0;
+    for(let i=0;i<=10000000000;i++) sum+=i;
+    res.send(`CPU intensive task done, Ans: ${sum}`);
+  });
   
   app.listen(3000);
 }
