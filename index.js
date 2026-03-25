@@ -8,7 +8,8 @@ require('dotenv').config();
 
 const redis = new Redis({
   host: process.env.AWS_CACHE_ENDPOINT,
-  port: 6379
+  port: 6379,
+  tls: {},
 });
 
 const CPU_CORE_COUNT = os.cpus().length;
