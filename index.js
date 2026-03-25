@@ -18,7 +18,9 @@ else{
   const redis = new Redis({
     host: process.env.AWS_CACHE_ENDPOINT,
     port: 6379,
-    tls: {},
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 
   app.get('/', (req, res) => {
@@ -48,7 +50,7 @@ else{
     
       res.send(`Computed: ${sum}`);
     } catch (error) {
-      res.send(`${error}`);
+      res.send(`try catch error: ${error}`);
     }
   });
   
