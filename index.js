@@ -2,6 +2,14 @@ const express = require('express');
 const cluster = require('cluster');
 const os = require('os');
 const app = express();
+const Redis = require('ioredis');
+
+require('dotenv').config();
+
+const redis = new Redis({
+  host: process.env.AWS_CACHE_ENDPOINT,
+  port: 6379
+});
 
 const CPU_CORE_COUNT = os.cpus().length;
 
@@ -20,10 +28,27 @@ else{
     res.send(`Req handled by worker: ${process.pid}, CPU Core Count: ${CPU_CORE_COUNT}`);
   });
 
-  app.get('/heavy-task', (req, res) => {
-    let sum=0;
-    for(let i=0;i<=10000000000;i++) sum+=i;
-    res.send(`CPU intensive task done, Ans: ${sum}`);
+  app.get('/heavy-task', async (req, res) => {
+    try {
+      const cacheKey = 'heavy-task-result';
+    
+      // 1. Check cache
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        return res.send(`From Cache: ${cached}`);
+      }
+    
+      // 2. Heavy computation
+      let sum = 0;
+      for (let i = 0; i <= 10000000000; i++) sum += i;
+    
+      // 3. Store in cache (TTL = 60 sec)
+      await redis.set(cacheKey, sum, 'EX', 60);
+    
+      res.send(`Computed: ${sum}`);
+    } catch (error) {
+      res.send(`${error}`);
+    }
   });
   
   app.listen(3000);
