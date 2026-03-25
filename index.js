@@ -6,12 +6,6 @@ const Redis = require('ioredis');
 
 require('dotenv').config();
 
-const redis = new Redis({
-  host: process.env.AWS_CACHE_ENDPOINT,
-  port: 6379,
-  tls: {},
-});
-
 const CPU_CORE_COUNT = os.cpus().length;
 
 if(cluster.isPrimary) {
@@ -20,6 +14,12 @@ if(cluster.isPrimary) {
   }
 }
 else{
+
+  const redis = new Redis({
+    host: process.env.AWS_CACHE_ENDPOINT,
+    port: 6379,
+    tls: {},
+  });
 
   app.get('/', (req, res) => {
     res.send('Hello Aman Madhukar');
@@ -41,7 +41,7 @@ else{
     
       // 2. Heavy computation
       let sum = 0;
-      for (let i = 0; i <= 10000000000; i++) sum += i;
+      for (let i = 0; i <= 1000000000; i++) sum += i;
     
       // 3. Store in cache (TTL = 60 sec)
       await redis.set(cacheKey, sum, 'EX', 60);
